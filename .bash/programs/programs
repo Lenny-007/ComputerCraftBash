@@ -1,0 +1,33 @@
+
+local bAll = false
+local tArgs = { ... }
+
+if #tArgs < 1 then
+  bash.console_systemprint("All programs installed on bash:")
+  local programs = fs.list("/.bash/programs")
+  for i in pairs(programs) do
+    bash.console_print(programs[i])
+  end
+end
+
+if tArgs[1] == "-c" then
+  bash.console_systemprint("All programs installed on CraftOS")
+  --if #tArgs > 0 and tArgs[2] == "all" then
+  bAll = true
+  --end
+  local tPrograms = shell.programs( bAll )
+  for i in pairs(tPrograms) do
+    term.setTextColor(colors.gray)
+    write("# ")
+    if fs.exists("/.bash/programs/"..tPrograms[i]) then
+      term.setTextColor(colors.white)
+    end
+    write(tPrograms[i])
+    local x,y = term.getCursorPos()
+    local l,h = term.getSize()
+    if y >= h then
+      os.pullEvent("key")
+    end
+    write("\n")
+  end
+end

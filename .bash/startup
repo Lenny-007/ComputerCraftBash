@@ -1,0 +1,50 @@
+
+if not term.isColor() then
+  error("The operating system was developed only for advanced computers! :(")
+end
+
+os.temp = {}
+
+term.clear()
+term.setCursorPos(1,1)
+
+-- prebash-programs
+local prebash = fs.list("/.bash/autorun")
+for i in pairs(prebash) do
+  if prebash[i] ~= "readme" then
+    term.setTextColor(colors.blue)
+    write("> run pre-bash-program: ")
+    term.setTextColor(colors.gray)
+    print("/.bash/autorun/"..prebash[i])
+    local ok = shell.run("/.bash/autorun/"..prebash[i])
+    if ok then
+      term.setTextColor(colors.blue)
+      print("> finish!")
+      sleep(0.3)
+    else
+      term.setTextColor(colors.red)
+      print(">> program has been crashed")
+      print("press space to continue")
+      while true do
+        local e,k = os.pullEvent("key")
+        if k == 57 then
+          break
+        end
+      end
+    end
+  end
+end
+sleep(1.5)
+
+-- graphical intro images
+shell.run("/.bash/intro")
+
+-- user login
+shell.run("/.bash/login")
+
+-- bash head
+shell.run("/.bash/programs/head")
+
+-- starting shell process
+shell.run("/.bash/bash")
+

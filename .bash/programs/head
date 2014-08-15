@@ -1,0 +1,43 @@
+
+local l,h = term.getSize()
+term.setBackgroundColor(colors.black)
+term.clear()
+term.setCursorPos(1,1)
+
+function head()
+  term.setTextColor(colors.cyan)
+  print("  ComputerCraft BASH by Lenny_007!")
+  term.setTextColor(colors.gray)
+  print("  Created in July 2014 :)")
+end
+
+function line()
+  term.setTextColor(colors.lightGray)
+  for i = 1,l,1 do
+    local str
+    if i == 1 or i == l then
+      str = "+"
+    else
+      str = "-"
+    end
+    if i < l then
+      write(str)
+    else
+      print(str)
+    end
+  end
+end
+
+line()
+head()
+line()
+
+term.setCursorPos(1,2)
+print("|")
+print("|")
+term.setCursorPos(l,2)
+write("|")
+term.setCursorPos(l,3)
+write("|")
+
+term.setCursorPos(1,5)

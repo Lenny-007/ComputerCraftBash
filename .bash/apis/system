@@ -1,0 +1,29 @@
+local _data = {}
+
+function output(str)
+  term.setTextColor(colors.blue)
+  write("# ")
+  term.setTextColor(colors.gray)
+  print(str)
+end
+
+function reloadAPI(name)
+  if fs.exists("/.bash/apis/"..name) then
+    if string.sub(name,1,1) ~= "_" then
+      os.unloadAPI("/.bash/apis/"..name)
+      if os.loadAPI("/.bash/apis/"..name) then
+        output("API reloaded: "..name)
+      end
+    end
+  else
+    bash.console_error("no such API") 
+  end
+end
+
+function get_user()
+  return _data.user
+end
+
+function set_user(usr)
+  
+end

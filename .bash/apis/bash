@@ -1,0 +1,66 @@
+function console_print(str)
+  term.setTextColor(colors.white)
+  print("# "..tostring(str))
+end
+
+function console_addprint(str)
+  term.setTextColor(colors.white)
+  print("  "..tostring(str))
+end
+
+function console_systemprint(str)
+  term.setTextColor(colors.orange)
+  print(tostring(str))
+end
+
+function console_error(str)
+  term.setTextColor(colors.red)
+  print("bash: "..tostring(str))
+end
+
+function console_dialog(str)
+  term.setTextColor(colors.red)
+  write("! ") 
+  term.setTextColor(colors.white)
+  print(str)
+  term.setTextColor(colors.red)
+  write("? ")
+  term.setTextColor(colors.white)
+  write("Yes/No: ")
+  local answer = read()
+  if answer == "yes" then
+    return true
+  else
+    return false
+  end
+end
+
+function console_conflict(file)
+  term.setTextColor(colors.red)
+  write("! Conflict: ")
+  term.setTextColor(colors.gray)
+  print(tostring(file))
+end
+
+function tools_find(str,p)
+  local len = string.len(str)
+  for i = 1,len,1 do
+    if string.sub(str,i,i) == p then
+      return i
+    end
+  end
+end
+
+function tools_compress(str)
+  local nstr = str
+  while true do
+    if string.sub(nstr,1,1) == " " then
+      local len = string.len(nstr)
+      nstr = string.sub(nstr,2,len)
+    else
+      break
+    end
+  end
+  return nstr
+end
+

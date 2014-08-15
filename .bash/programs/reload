@@ -1,0 +1,17 @@
+-- api reload program
+--[[
+  api directory: /.bash/apis/
+]]
+
+local args = {...}
+
+local apis = fs.list("/.bash/apis")
+
+if args[1] == "-t" then
+  os.loadAPI("/.bash/tasks")
+  os.queueEvent("bash_tasks_reload")
+else
+  for i in pairs(apis) do
+    system.reloadAPI(apis[i])
+  end
+end

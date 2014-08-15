@@ -1,0 +1,12 @@
+
+local con = console.create("test")
+
+while true do
+  local str = read()
+  sleep(0)
+  con:write(str)
+end
+
+--for i in pairs(con.lines) do
+--  con:writeLine(i)
+--end

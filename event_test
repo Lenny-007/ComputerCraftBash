@@ -1,0 +1,6 @@
+while true do
+  local param = {os.pullEvent()}
+  for i in pairs(param) do
+    print(param[i])
+  end
+end

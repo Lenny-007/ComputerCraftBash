@@ -1,0 +1,28 @@
+#Help package program:
+  package <mode> <...>
+# All modes of the package program:
+   package new    <name>
++  creates a new package
+   package add    <package> <file>
++  adds a file to an existing package
+   package erase  <package> <file>
++  removes a file from an existing package
+   package remove <package>
++  deletes a package
+   package list
++  list of all packages
+   package info   <package>
++  list of all files in an existing package
+# server-packages:
+   package send   <id> <package>
++  sends a package to a server
+   package pull   <id/host> <package>
++  receive a package from a server
+# server-packages remote mode:
+   package remote list <id/host>
++  list of all packages on the server
+   package remote remove <id/host> <package>
++  deletes a package from the server
+# dowonloaded packages:
+   package downloads
++  list of all downloaded packages

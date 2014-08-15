@@ -1,0 +1,288 @@
+-- package program rewrite 1 :)
+
+fs.makeDir("/.bash/packages/")
+fs.makeDir("/.bash/downloads/")
+
+function usage(str)
+  term.setTextColor(colors.red)
+  print("Usage: "..str)
+end
+
+function _error(str)
+  term.setTextColor(colors.red)
+  print("package: "..str)
+end
+
+function new(name) 
+  if not fs.exists("/.bash/packages/"..name) then
+    local package = fs.open("/.bash/packages/"..name,"w")
+    package.writeLine("{}")
+    package.close()
+    bash.console_print("package has been created")
+  else
+    _error("package already exists")
+  end
+end
+
+function add(package,path)
+  if fs.exists("/.bash/packages/"..package) then
+    if fs.exists(path) then
+      local files   = tools.getFiles(path)
+      local pckge   = fs.open("/.bash/packages/"..package,"r")
+      local data    = textutils.unserialize(pckge.readAll())
+      pckge.close()
+      for i in pairs(files) do
+        table.insert(data,files[i])
+        bash.console_print(files[i].." has been added to package")
+      end
+      data = textutils.serialize(data)
+      fs.delete("/.bash/packages/"..package)
+      local new_package = fs.open("/.bash/packages/"..package,"w")
+      new_package.write(data)
+      new_package.close()      
+    else
+      _error("no such path")
+    end
+  else
+    _error("no such package")
+  end
+end
+
+function erase(package,mode,file)
+  if fs.exists("/.bash/packages/"..package) then
+    local pckge = fs.open("/.bash/packages/"..package,"r")
+    local data  = textutils.unserialize(pckge.readAll())
+    pckge.close()
+    local delete = false
+    for i in pairs(data) do
+      if mode == "-p" then
+        if data[i] == file then
+          data[i]  = nil
+          delete   = true
+          bash.console_print("removed file from package -> path_mode")
+          break
+        end
+      elseif mode == "-n" then
+        if fs.getName(data[i]) == file then
+          data[i] = nil
+          delete  = true
+          bash.console_print("removed file from package -> name_mode")
+          break
+        end
+      else
+        _error("no such mode")
+        return
+      end
+    end
+    if delete then
+      fs.delete("/.bash/packages/"..package)
+      local new_package = fs.open("/.bash/packages/"..package,"w")
+      new_package.write(textutils.serialize(data))
+      new_package.close()
+      bash.console_print("file: "..file.." has been removed from package")
+    else
+      _error("no such file to delete")
+    end
+  else
+    _error("no such package")
+  end
+end 
+
+function remove(package)
+  if string.len(package) > 0 then   -- you can't delete the packages directory
+    if fs.exists("/.bash/packages/"..package) then
+      fs.delete("/.bash/packages/"..package)
+      bash.console_print("package has been removed: "..package)
+    else
+      _error("no such package")
+    end
+  else
+    _error("no such package")
+  end
+end
+
+function list()
+  local list = fs.list("/.bash/packages")
+  bash.console_systemprint("Packages on this machine: ")
+  if #list < 1 then
+    bash.console_print("no packages available")
+  else
+    for i in pairs(list) do
+      bash.console_print(list[i])
+    end
+  end
+end
+
+function info(package)
+  if fs.exists("/.bash/packages/"..package) then
+    local pckge = fs.open("/.bash/packages/"..package,"r")
+    local data  = textutils.unserialize(pckge.readAll())
+    pckge.close()
+    bash.console_systemprint("PackageInfo: "..package)
+    local l,h = term.getSize()
+    if #data > 0 then
+      for i in pairs(data) do
+        local x,y = term.getCursorPos()
+        if y == h then
+          os.pullEvent("key")
+        end
+        bash.console_print(data[i])
+      end
+    else
+      bash.console_print("empty package")
+    end
+  else
+    _error("no such package")
+  end
+end
+
+function send(sID,package)
+  if fs.exists("/.bash/packages/"..package) then
+    local pckge = fs.open("/.bash/packages/"..package,"r")
+    local data  = textutils.unserialize(pckge.readAll())
+    pckge.close()
+    local send = {action = "push",name = package,files = {}}
+    local missing = {}
+    for i in pairs(data) do
+      if fs.exists(data[i]) then
+        local file = fs.open(data[i],"r")
+        local content = file.readAll()
+        file.close()
+        send.files[data[i]] = content
+      else
+        table.insert(missing,data[i])
+      end
+    end
+    if #missing > 0 then
+      for i in pairs(missing) do
+        _error("Missing file: "..missing[i])
+      end
+      if not bash.console_dialog("Continue?") then
+        _error("operation canceled")
+        return
+      end
+    end
+    local ok,id = tools.getID(sID)
+    if ok then
+      rednet.send(id,textutils.serialize(send),"bppfs_main")
+    else
+      _error("no such id/host")
+    end
+  else
+    _error("no such package")
+  end
+end
+
+function receive(sID,package)
+  local ok,id = toolsgetID(sID)
+  if ok then
+    local send = textutils.serialize({action = "pull",name = package})
+    rednet.send(id,send,"bppfs_main")
+    local ok,pckge = rednet.receive("bppfs_download",5)
+    if ok ~= nil then
+      pckge = textutils.unserialize(pckge)
+      if type(pckge) ~= "table" then
+        _error("package does not exists")
+        return
+      end
+      local p_file = "/.bash/downloads/"..package.."/"
+      if fs.exists(p_file) then
+        fs.delete(p_file)
+      end
+      fs.makeDir(p_file)
+      for i in pairs(pckge.files) do
+        local file = fs.open(p_file..i,"w")
+        file.write(pckge.files[i])
+        file.close()
+        bash.console_print(p_file..i.." had been downloaded")
+      end
+    else
+      _error("no response from server")
+    end
+  else
+    _error("no such id/host")
+  end
+end
+
+function server_list(sID)
+  ok,id = tools.getID(sID)
+  if ok then
+    local send = textutils.serialize({action = "list"})
+    rednet.send(id,send,"bppfs_main")
+    local ok,list = rednet.receive("bppfs_packages",5)
+    if ok ~= nil then
+      list = textutils.unserialize(list)
+      bash.console_systemprint("Packages on server: "..id)
+      local l,h = term.getSize()
+      for i in pairs(list) do
+        local x,y = term.getCursorPos()
+        if y == h then
+          os.pullEvent("key")
+        end
+        bash.console_print(list[i])
+      end
+    else
+      _error("no response from server")
+    end
+  else
+    _error("no such id/host")
+  end
+end
+
+function server_remove(sID,pckge)
+  local ok,id = tools.getID(sID)
+  if ok then
+    local send = {action = "remove",package = pckge}
+    send = textutils.serialize(send)
+    rednet.send(id,send,"bppfs_main")
+    bash.console_print("remove-request has been sended to server: "..id)
+    local ok,m = rednet.receive("bppfs_remove",5)
+    if ok then
+      if m == "removed" then
+        bash.console_print("package has been removed")
+      else
+        _error("no such package")
+      end
+    else
+      _error("no response from server")
+    end
+  else
+    _error("no such id/host")
+  end
+end
+
+function downloads()
+  local list = fs.list("/.bash/downloads/")
+  bash.console_systemprint("All downloaded packages: ")
+  if #list > 0 then
+    for i in pairs(list) do
+      bash.console_print(list[i])
+    end
+  else
+    bash.console_print("empty download-list")
+  end
+end
+
+function install(package)
+  if fs.exists("/.bash/downloads/"..package) then
+    local dir = "/.bash/downloads/"..package.."/"
+    local list = fs.list(dir)
+    for i in pairs(list) do
+      if fs.exists("/.bash/programs/"..list[i]) then
+        bash.console_conflict("/.bash/programs/"..list[i])
+        if bash.console_dialog("Continue?") then
+          fs.delete("/.bash/programs/"..list[i])
+          fs.copy(dir..list[i],"/.bash/programs/"..list[i])
+          bash.console_print("Program has been reinstallt")
+        else
+          _error("installation canceled")
+        end
+      else
+        fs.copy(dir..list[i],"/.bash/programs/"..list[i])
+        bash.console_print("Program has been installed")
+      end
+    end
+  else
+    _error("no such package")
+  end
+end

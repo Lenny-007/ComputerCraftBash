@@ -1,0 +1,24 @@
+-- bash console manager program -> debug
+
+function con_interface(name)
+  local s_line = 1
+  local l,h    = term.getSize()
+  local con    = console.getConsole(name)
+  while true do
+    term.clear()
+    term.setCursorPos(1,1)
+    local _end = s_line + h - 1
+    if _end > #con.lines then
+      _end = #con.lines
+    end
+    for i = s_line,_end do
+      con:writeLine(i)
+    end
+    while true do
+      local e,p = os.pullEvent("console_update")
+      -- I'll do this later - it's very late tonight :)
+    end
+  end
+end
+
+con_interface("test")

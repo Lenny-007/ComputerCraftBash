@@ -1,0 +1,34 @@
+local args = {...}
+fs.makeDir("/.bash/help")
+
+if #args < 1 then
+  local list = fs.list("/.bash/programs")
+  bash.console_systemprint("list of all installed programs:")
+  for i in pairs(list) do
+    bash.console_print(list[i])
+  end
+  print("+ all CraftOS programs")
+else
+  if fs.exists("/.bash/help/"..args[1]) then
+    local file = fs.open("/.bash/help/"..args[1],"r")
+    local content = {}
+    repeat
+      local data  = file.readLine()
+      table.insert(content,data)
+    until data == nil
+    for i in pairs(content) do
+      local len = string.len(content[i])
+      local str = string.sub(content[i],2,len)
+      local op  = string.sub(content[i],1,1)
+      if op == "#" then
+        bash.console_systemprint(str)
+      else
+        term.setTextColor(colors.white)
+        print(str)
+      end
+    end
+  else
+    bash.console_error("no help available")
+    return
+  end
+end

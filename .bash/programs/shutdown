@@ -1,0 +1,11 @@
+local image = paintutils.loadImage("/.bash/gfx/goodbye")
+term.setBackgroundColor(colors.black)
+term.clear()
+
+paintutils.drawImage(image,1,1)
+sleep(3)
+
+term.setBackgroundColor(colors.black)
+term.clear()
+
+os.shutdown()

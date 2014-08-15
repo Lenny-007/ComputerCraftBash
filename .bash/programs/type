@@ -1,0 +1,32 @@
+
+local tArgs = { ... }
+if #tArgs < 1 then
+	 bash.console_error( "Usage: type <path>" )
+ 	return
+end
+
+local sPath = shell.resolve( tArgs[1] )
+if fs.exists( sPath ) then
+ local hidden = false
+ term.setTextColor(colors.white)
+ write("# "..sPath..": ")
+	if string.sub(fs.getName(sPath),1,1) == "." then
+   hidden = true
+ end
+ if fs.isDir( sPath ) then
+  	if hidden then
+     print("directory (hidden)")
+   else	
+     print( "directory" )
+   end
+	else
+   if hidden then
+     print("file (hidden)")
+   else
+   		print( "file" )
+   end
+	end
+else
+	 bash.console_error( "No such path" )
+end
+

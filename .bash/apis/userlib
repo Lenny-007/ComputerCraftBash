@@ -1,0 +1,29 @@
+local _login
+local _user
+
+if os.temp.user ~= nil then
+  _login = true
+  _user  = os.temp.user
+end
+
+function login(usr,pss)
+  if not _login then
+    if fs.exists("/.bash/userdata/.~"..usr) then
+      local file = fs.open("/.bash/userdata/.~"..usr,"r")
+      local pass = file.readLine()
+      file.close()
+      if pss == pass then
+        _user = usr
+        os.temp.user = usr
+        return true
+      end
+    end
+  end
+  return false
+end
+
+function getUser()
+  return tostring(_user)
+end
+
+

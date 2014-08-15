@@ -1,0 +1,19 @@
+local n_load = os.loadAPI
+
+os.loadAPI = function(path)
+  local name = fs.getName(path)
+  if string.sub(name,1,1) ~= "_" then
+    if n_load(path) then
+      return true
+    else
+      return false
+    end
+  else
+    term.setTextColor(colors.red)
+    write("OS_API> ")
+    term.setTextColor(colors.gray)
+    print("can\'t load API: deactivated")
+    return false
+  end
+end
+

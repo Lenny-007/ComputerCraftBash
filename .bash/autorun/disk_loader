@@ -1,0 +1,28 @@
+-- this program will check a disk for a $startup file
+
+local sides = rs.getSides()
+
+function message(str) 
+  term.setTextColor(colors.lime)
+  write("disk_loader> ")
+  term.setTextColor(colors.gray)
+  print(str)
+  sleep(0.1)
+end
+
+for i in pairs(sides) do
+  message("checking side for disk")
+  if disk.isPresent(sides[i]) then
+    message("disk detected: "..sides[i])
+    local path = disk.getMountPath(sides[i])
+    message("loading disk: /"..path.."/")
+    if fs.exists(path.."/$startup") then
+      message("detected $startup file")
+      shell.run("/"..path.."/$startup")
+    else
+      message("no $startup file detected")
+    end
+  else
+    message("no disk detected: "..sides[i])
+  end
+end

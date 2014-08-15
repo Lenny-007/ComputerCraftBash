@@ -1,0 +1,42 @@
+function getID(data)
+  local id
+  if tonumber(data) == nil then
+    if rednet.lookup(data) == nil then
+      return false
+    else
+      id = rednet.lookup(data)
+    end
+  else
+    id = tonumber(data)
+  end
+  return true,id
+end
+
+function getFiles(path)
+  if fs.exists(path) then
+    if fs.isDir(path) then
+      local items  = fs.list(path)
+      local tItems = {}
+      for i in pairs(items) do
+        local iItems = getFiles(path.."/"..items[i])
+        for v in pairs(iItems) do
+          table.insert(tItems,iItems[v])
+        end
+      end
+      return tItems
+    else
+      return {[1]=path}
+    end
+  else
+    error("no such path")
+  end
+end
+
+function checkColor(color)
+  for i in pairs(colors) do
+    if color == colors[i] then
+      return true
+    end
+  end
+  return false
+end

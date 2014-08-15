@@ -1,0 +1,14 @@
+local sides = rs.getSides()
+
+for i in pairs(sides) do
+  if peripheral.getType(sides[i]) == "modem" then
+    term.setTextColor(colors.lime)
+    write("network_init> ")
+    term.setTextColor(colors.gray)
+    print("modem has been detected: "..sides[i])
+    print("              opening rednet ...")
+    rednet.open(sides[i])
+    print("              finish!")
+  end
+  sleep(0.1)
+end

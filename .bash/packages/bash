@@ -1,0 +1,10 @@
+{
+  ".bash/programs/crafthelp",
+  ".bash/programs/echo",
+  ".bash/programs/edit",
+  ".bash/programs/help",
+  ".bash/programs/install",
+  ".bash/programs/list",
+  ".bash/programs/network",
+  ".bash/programs/package",
+}

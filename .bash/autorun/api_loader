@@ -1,0 +1,19 @@
+-- api loader program (only booting)
+
+-- api directory :)
+-- place your apis -> loadings
+fs.makeDir("/.bash/apis")
+
+local apis = fs.list("/.bash/apis")
+
+-- loading apis ... 
+for i in pairs(apis) do
+  if string.sub(apis[i],1,1) ~= "_" then
+    os.loadAPI("/.bash/apis/"..apis[i])
+    term.setTextColor(colors.lime)
+    write("api_loader> ")
+    term.setTextColor(colors.gray)
+    print("loading API: /.bash/apis/"..apis[i])
+    sleep(0.1)
+  end
+end

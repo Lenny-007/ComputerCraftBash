@@ -1,0 +1,27 @@
+-- login program
+local native_event = os.pullEvent
+os.pullEvent       = os.pullEventRaw
+
+while true do
+  term.setBackgroundColor(colors.black)
+  term.setTextColor(colors.cyan)
+  term.clear()
+  term.setCursorPos(2,2)
+  write("username: ")
+  term.setCursorPos(2,3)
+  write("password: ")
+  term.setTextColor(colors.gray)
+  term.setCursorPos(12,2)
+  local usr = read()
+  term.setCursorPos(12,3)
+  local pss = read("*")
+  if userlib.login(usr,pss) then
+    os.pullEvent = native_event
+    break
+  end
+  term.clear()
+  term.setTextColor(colors.red)
+  term.setCursorPos(2,2)
+  print("username or password is incorrect")
+  sleep(1.5)
+end

@@ -1,0 +1,10 @@
+
+local tArgs = { ... }
+if #tArgs > 0 then
+    shell.openTab( unpack( tArgs ) )
+else
+  local dir = shell.dir()
+  shell.setDir(shell.resolve("/"))
+  shell.openTab( shell.resolve("/.bash/bash") )
+  shell.setDir(dir)
+end

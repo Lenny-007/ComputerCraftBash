@@ -1,0 +1,7 @@
+#BashAPI Functions:
+  bash.console_print(string)
+  bash.console_addprint(string)
+  bash.console_systemprint(string)
+  bash.console_error(errorstring)
+  bash.tools_compress(str)
++ returns the compressed string

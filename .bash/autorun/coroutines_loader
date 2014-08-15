@@ -1,0 +1,25 @@
+-- coroutine loader program
+-- loads the routine library
+
+function message(str)
+  term.setTextColor(colors.lime)
+  write("coroutines_loader> ")
+  term.setTextColor(colors.gray)
+  print(str)
+  sleep(0.1)
+end
+
+message("start loading coroutines ...")
+os.loadAPI("/.bash/tasks")
+message("complete!")
+message("loaded coroutines: #"..#tasks._routines)
+
+for i in pairs(tasks._routines) do
+  term.setTextColor(colors.lime)
+  write("Tasks> ")
+  term.setTextColor(colors.gray)
+  print(i)
+  sleep(0.1)
+end
+
+sleep(0.5)

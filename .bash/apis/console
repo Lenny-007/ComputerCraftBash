@@ -1,0 +1,72 @@
+-- debug console
+
+_content  = {}
+_consoles = {}
+
+
+local native_console = { -- default console object
+  cont   = setmetatable({},_content),
+  author = "unknown",
+  dcolor = colors.gray,
+  lines  = {
+    [1]  = {
+      str   = "Console created by BASH Console API",
+      color = colors.blue,
+    },
+  },
+}
+
+function native_console:set_author(str)
+  self.author = str
+end
+
+function native_console:write(text,col)
+  if not col then
+    col = self.dcolor
+  end
+  local line = {
+    color = col,
+    str   = text,
+  }
+  local global_line = {
+    color  = col,
+    str    = text,
+    prefix = self.author,
+  }
+  table.insert(self.lines,line)
+  table.insert(getmetatable(self.cont),global_line)
+  os.queueEvent("console_update",self.author)
+end
+
+function native_console:get_lines()
+  return self.lines
+end
+
+function native_console:writeLine(index)
+  if self.lines[index] ~= nil then
+    term.setTextColor(self.lines[index]["color"])
+    print(tostring(self.lines[index]["str"]))
+  else
+    error("no such line: "..tostring(index))
+  end
+end
+
+-- api function(s)
+
+function create(name) 
+  local con = native_console
+  if name ~= nil then
+    con.author = name
+  end
+  table.insert(_consoles,setmetatable({},con))
+  return con
+end
+
+function getConsole(name)
+  for i in pairs(_consoles) do
+    local con = getmetatable(_consoles[i])
+    if con.author == name then
+      return con
+    end
+  end
+end

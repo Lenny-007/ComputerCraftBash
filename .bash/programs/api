@@ -1,0 +1,108 @@
+-- api manager program 
+
+local args = {...}
+
+function _error(str)
+  term.setTextColor(colors.red)
+  print("API: "..str)
+end
+
+function output(str) 
+  term.setTextColor(colors.blue)
+  write("# ") 
+  term.setTextColor(colors.gray)
+  print(str)
+end
+
+if #args < 1 then
+  bash.console_error("usage: api <mode> ...")
+end
+
+if args[1] == "load" then
+  if #args < 3 then
+    if args[2] ~= "-a" then
+      _error("usage: api load <load-mode> <name>")
+    end
+  else
+    local file
+    if args[2] == "-n" then
+      file = "/.bash/apis/"..args[3]
+    elseif args[2] == "-p" then
+      file = args[3]
+    else
+      _error("no such load-mode")
+      return
+    end
+    if fs.exists(file) then
+      os.loadAPI(file)
+      output("API loaded: "..args[3])
+    else
+      _error("no such api")
+    end
+  end
+  if #args >= 2 then
+	if args[1] == "load" and args[2] == "-a" then
+      local list = fs.list("/.bash/apis")
+      for i in pairs(list) do
+        os.loadAPI("/.bash/apis/"..list[i])
+        output("API loaded: "..list[i])
+      end
+      return
+	end	
+  end
+end
+
+if args[1] == "unload" then
+  if #args < 2 then
+    _error("usage: api unload <name>")
+  else
+    if args[2] == "-a" then
+      local list = fs.list("/.bash/apis")
+      for i in pairs(list) do
+        if list[i] ~= "bash" then
+          os.unloadAPI(list[i])
+          output("API unloaded: "..list[i])
+        end
+      end
+      return
+    else
+      os.unloadAPI(args[2])
+      output("API unloaded: "..args[2])
+    end
+  end
+end
+
+if args[1] == "list" then
+  local tApis = {}
+  for k,v in pairs( _G ) do
+   	if type(k) == "string" and type(v) == "table" and k ~= "_G" then
+  	  	table.insert( tApis, k )
+   	end
+  end
+  table.insert( tApis, "shell" )
+  table.sort( tApis )
+  textutils.pagedTabulate( tApis )
+end
+
+if args[1] == "install" then
+  if #args < 2 then
+    _error("usage: api install <path>")
+  else
+    local path = shell.resolve(args[2])
+    if fs.exists(path) then
+      local name = fs.getName(path)
+      if fs.exists("/.bash/apis/"..name) then
+        bash.console_conflict("/.bash/apis/"..name)
+        if not bash.console_dialog("Continue?") then
+          _error("operation canceled")
+          return
+        end
+        fs.delete("/.bash/apis/"..name)
+      end
+      fs.copy(path,"/.bash/apis/"..name)
+      bash.console_print("API has been installed")
+    else
+      _error("no such API")
+    end
+  end
+end

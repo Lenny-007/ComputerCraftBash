@@ -1,0 +1,23 @@
+local args  = {...}
+
+local sides = rs.getSides()
+
+if args[1] == "open" then
+  for i in pairs(sides) do
+    if peripheral.getType(sides[i]) == "modem" then
+      rednet.open(sides[i])
+      bash.console_print("modem activated: "..sides[i])
+      return
+    end
+  end
+  bash.console_error("no such modem")
+end
+
+if args[1] == "close" then
+  for i in pairs(sides) do
+    if rednet.isOpen(sides[i]) then
+      rednet.close(sides[i])
+      bash.console_print("modem deactivated: "..sides[i])
+    end
+  end
+end

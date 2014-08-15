@@ -1,0 +1,29 @@
+-- routines library
+
+_routines = {
+  ["keep_running"]  = function()
+    while true do
+      local r = math.random()
+      os.pullEvent(r)
+    end
+  end,
+  
+  ["security_disk"] = function()
+    fs.makeDir("/.bash/security")
+    while true do
+      local e,s = os.pullEvent("disk")
+      local path = disk.getMountPath(s)
+      if fs.exists("/"..path.."/startup") then
+        local list = fs.list("/.bash/security")
+        fs.move("/"..path.."/startup","/.bash/security/"..(#list + 1))
+        term.setTextColor(colors.red)
+        write("SECURITY -> ")
+        term.setTextColor(colors.gray)
+        print("removed startup from: "..path)
+        print("            notice: there is a backup of startup at: /.bash/security/"..(#list + 1).."\n")
+        os.queueEvent("key",28)
+      end
+    end
+  end,
+}
+

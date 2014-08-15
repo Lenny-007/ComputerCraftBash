@@ -1,0 +1,8 @@
+local args = {...}
+
+for v in pairs(args) do 
+  term.setTextColor(colors.cyan)
+  write("> ")
+  term.setTextColor(colors.white)
+  print(args[v])
+end

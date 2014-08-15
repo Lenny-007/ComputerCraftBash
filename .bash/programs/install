@@ -1,0 +1,30 @@
+local args = {...}
+fs.makeDir("/.bash/outdated")
+
+if #args < 1 then
+  bash.console_error("usage: install <file>")
+  return
+else
+  if fs.exists(args[1]) then
+    local name = fs.getName(args[1])
+    if fs.exists("/.bash/programs/"..name) then
+      bash.console_print("Program is already installed!")
+      bash.console_print("Do you want do reinstall it?")
+      write("yes/no: ")
+      local result = read()
+      if result ~= "yes" then
+        return
+      else
+        local list = fs.list("/.bash/outdated")
+        fs.move("/.bash/programs/"..name,"/.bash/outdated/"..(#list+1))
+        bash.console_print("outdated program has been removed")
+        bash.console_print("notice: there is a backup at \'/.bash/outdated/"..(#list+1).."\'")
+      end
+    end
+    fs.copy(args[1],"/.bash/programs/"..name)
+    bash.console_print("program has been installed")
+  else
+    bash.console_error("no such file")
+    return
+  end
+end

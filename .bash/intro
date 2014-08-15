@@ -1,0 +1,22 @@
+
+local logo  = paintutils.loadImage("/.bash/gfx/logo")
+local lenny = paintutils.loadImage("/.bash/gfx/lenny")
+
+local image_sleep = 1.5
+
+term.clear()
+
+paintutils.drawImage(lenny,2,2)
+sleep(image_sleep/3)
+
+term.setBackgroundColor(colors.black)
+term.clear()
+
+paintutils.drawImage(logo,1,1)
+sleep(image_sleep)
+
+term.setBackgroundColor(colors.black)
+term.setTextColor(colors.white)
+
+term.clear()
+term.setCursorPos(1,1)

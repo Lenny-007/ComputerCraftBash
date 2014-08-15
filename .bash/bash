@@ -1,0 +1,123 @@
+if not term.isColor() then
+  error("you need an advanced computer")
+end
+
+local history   = {""}
+
+local rom_paths = {}
+local path_str  = shell.path()
+path_str = string.sub(path_str,3,string.len(path_str))
+
+repeat
+  local cut_pos = bash.tools_find(path_str,":")
+  if cut_pos ~= nil then 
+    table.insert(rom_paths,string.sub(path_str,1,cut_pos))
+    path_str = string.sub(path_str,cut_pos+1,string.len(path_str))
+  else
+    table.insert(rom_paths,path_strs)
+  end
+until cut_pos == nil
+
+function go_back(n)
+  local x,y = term.getCursorPos()
+  term.clearLine()
+  for i = 1,n,1 do
+    term.setCursorPos(1,y-i)
+    term.clearLine()
+  end
+end
+
+function bash_main()
+  while true do
+    local user = userlib.getUser()
+    local comp = os.getComputerLabel()
+    if comp == nil then
+      comp  = os.getComputerID()
+    end
+    term.setTextColor(colors.green)
+    write(user.."@#"..comp..": ")
+    term.setTextColor(colors.gray)
+    print("/"..shell.dir())
+    term.setTextColor(colors.cyan)
+    write("$ ")
+    term.setTextColor(colors.white)
+    command_line = read(nil,history)
+    command_line = bash.tools_compress(command_line)
+    if command_line ~= history[#history] then
+      if command_line ~= "" then
+        table.insert(history,command_line)
+      end
+    end
+    go_back(2)
+    if command_line ~= "" then
+      term.setTextColor(colors.cyan)
+      write("$ ")
+      term.setTextColor(colors.white)
+      print(command_line)
+    end
+    local command
+    local argstr
+    local eoc    = bash.tools_find(command_line," ")
+    if eoc == nil then
+      command = command_line
+      argstr  = ""
+    else
+      command = string.sub(command_line,1,eoc-1)
+      argstr  = string.sub(command_line,eoc,string.len(command_line))
+    end
+    if command == "exit" or command == "quit" then
+      return
+    end
+    local als = shell.aliases()
+    if als[command] ~= nil then
+      command = als[command]
+    end
+    if command == "" then
+    elseif fs.exists("/"..shell.dir().."/"..command) then
+      if shell.dir() == "rom/programs" and fs.exists("/.bash/programs/"..command) then
+        shell.run("/.bash/programs/"..command..argstr)
+      else
+        shell.run("/"..shell.dir().."/"..command..argstr)
+      end
+    elseif fs.exists("/"..command) then
+      shell.run("/"..command..argstr)
+    elseif fs.exists("/.bash/programs/"..command) then
+      shell.run("/.bash/programs/"..command..argstr)
+    else
+      local run = false
+      for i in pairs(rom_paths) do
+        if fs.exists(rom_paths[i].."/"..command) then
+          shell.run(rom_paths[i].."/"..command..argstr)
+          run = true
+        end
+      end
+      if not run then
+        go_back(1)
+        bash.console_error("no such program: "..command)
+        history[#history] = nil
+      end
+    end
+  end
+end
+
+function run_tasks()
+  parallel.waitForAll(unpack(tasks._routines))
+end
+
+function return_relaunch()
+  os.pullEvent("bash_tasks_reload")
+  go_back(1)
+  term.setTextColor(colors.red)
+  write("TASKS -> ")
+  term.setTextColor(colors.gray)
+  print("relaunching all bash_tasks \n")
+  os.queueEvent("key",28)
+end
+
+function handle_tasks()
+  while true do
+    parallel.waitForAny(return_relaunch,run_tasks)
+  end
+end
+
+parallel.waitForAny(bash_main,handle_tasks)

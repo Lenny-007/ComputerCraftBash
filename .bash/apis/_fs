@@ -1,0 +1,44 @@
+local _fs    = fs
+local _perms = {}
+
+local _err = function(path)
+  if fs.isDir(path) then
+    error("Access denied: System Directory")
+  else
+    error("Access denied: System File")
+  end
+end
+
+local test = function(path)
+  if _fs.exists(path) then
+    local name = fs.getName(path)
+    if string.sub(name,1,2) ~= ".~" then
+      return true
+    else
+      if userlib.getUser() ~= "ROOT" then
+        _err(path)
+      else
+        return true
+      end
+    end
+  else
+    error("no such path")
+  end
+end
+
+function list(path)
+  if test(path) then
+    local list  = _fs.list(path)
+    local nlist = {}
+    for i in pairs(list) do
+      if string.sub(list[i],1,2) ~= ".~" then
+        table.insert(nlist,list[i])
+      end
+    end
+    return nlist
+  else
+    error("no such path")
+  end
+end
+
+

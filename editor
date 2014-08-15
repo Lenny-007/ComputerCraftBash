@@ -1,0 +1,20 @@
+local lines = {}
+
+function new_line(str,line)
+  if str == nil then
+    str = ""
+  end
+  if line == nil then
+    tab.e.insert(lines,str)
+  else
+    for i = #lines,line,-1 do
+      lines[i+1] = lines[i]
+    end
+    lines[line] = str
+  end
+end
+
+function add_char(line,pos,char)
+  local len = string.len(lines[line])
+  
+end

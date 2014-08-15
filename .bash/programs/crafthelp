@@ -1,0 +1,3 @@
+local args = {...}
+
+shell.run("/rom/programs/help",...)

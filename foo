@@ -1,0 +1,13 @@
+local d  = 1
+local _t = 0
+local _k = 0
+while true do
+  local e,k = os.pullEvent("key")
+  local t   = os.time()
+  local _td = math.abs(t - _t)
+  if _td <= 0.001 and _k == 29  and k == 184 then
+    print("ALT Gr!")
+  end
+  _t = t
+  _k = k
+end
